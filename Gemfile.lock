@@ -90,7 +90,7 @@ DEPENDENCIES
   fakefs (~> 1.0)
   gem-release (~> 2.0)
   rake (~> 13.0)
-  rake_circle_ci (~> 0.3)
+  rake_circle_ci (~> 0.7)
   rake_github (~> 0.3)
   rake_gpg!
   rake_ssh (~> 0.2)
