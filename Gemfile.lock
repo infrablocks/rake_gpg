@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rake_gpg (0.1.0.pre.0)
+    rake_gpg (0.1.0.pre.1)
       gpgme (~> 2.0)
       rake_factory (>= 0.23, < 1)
 
