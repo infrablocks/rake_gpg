@@ -137,7 +137,7 @@ describe RakeGPG::Tasks::Key::Generate do
     expect(test_task.work_directory).to(eq('tmp'))
   end
 
-  it 'has no home directory by default' do
+  it 'uses a temporary home directory by default' do
     define_task(
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
@@ -145,7 +145,7 @@ describe RakeGPG::Tasks::Key::Generate do
     rake_task = Rake::Task['key:generate']
     test_task = rake_task.creator
 
-    expect(test_task.home_directory).to(be_nil)
+    expect(test_task.home_directory).to(eq(:temporary))
   end
 
   it 'uses the provided home directory when specified' do
@@ -420,7 +420,34 @@ describe RakeGPG::Tasks::Key::Generate do
     end
   end
 
-  # allow random home directory under work directory
+  it 'creates a temporary directory under the work directory for home ' +
+      'directory when home directory is :temporary' do
+    Dir.mktmpdir(nil, '/tmp') do |work_directory|
+      output_directory = "#{work_directory}/keys"
+      owner_name = 'Amanda Greeves'
+      owner_email = 'amanda.greeves@example.com'
+
+      define_task(
+          owner_name: owner_name,
+          owner_email: owner_email,
+          work_directory: work_directory,
+          home_directory: :temporary,
+          output_directory: output_directory)
+
+      expect(Dir)
+          .to(receive(:mktmpdir)
+              .with('home', work_directory)
+              .and_call_original)
+
+      Rake::Task['key:generate'].invoke
+
+      public_key_path = "#{output_directory}/gpg.public"
+      secret_key_path = "#{output_directory}/gpg.private"
+
+      expect(File.exist?(public_key_path)).to(be(true))
+      expect(File.exist?(secret_key_path)).to(be(true))
+    end
+  end
 
   def stub_output
     RubyGPG2.configure do |c|

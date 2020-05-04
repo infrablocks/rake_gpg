@@ -12,7 +12,7 @@ module RakeGPG
         parameter :armor, default: true
 
         parameter :work_directory, default: 'build/gpg'
-        parameter :home_directory
+        parameter :home_directory, default: :temporary
         parameter :output_directory
 
         parameter :key_type, default: 'RSA'
@@ -28,18 +28,31 @@ module RakeGPG
         parameter :passphrase
 
         action do |t|
-          puts "Generating GPG key for #{owner_name} <#{owner_email}>..."
+          if t.home_directory == :temporary
+            Dir.mktmpdir(
+                'home', t.work_directory) do |home_directory|
+              generate_key(t, home_directory)
+            end
+          else
+            generate_key(t, t.home_directory)
+          end
+        end
+
+        private
+
+        def generate_key(t, home_directory)
+          puts "Generating GPG key for #{t.owner_name} <#{t.owner_email}>..."
 
           mkdir_p t.work_directory
-          mkdir_p t.home_directory if t.home_directory
           mkdir_p t.output_directory if t.output_directory
+          mkdir_p home_directory if home_directory
 
           result = RubyGPG2::ParameterFileContents
               .new(t.parameter_values)
               .in_temp_file(t.work_directory) do |f|
             RubyGPG2.generate_key(
                 parameter_file_path: f.path,
-                home_directory: t.home_directory,
+                home_directory: home_directory,
                 work_directory: t.work_directory,
                 without_passphrase: t.passphrase.nil?,
                 with_status: true)
@@ -61,13 +74,13 @@ module RakeGPG
                 output_file_path:
                     "#{t.output_directory}/#{t.name_prefix}.public",
                 armor: t.armor,
-                home_directory: t.home_directory)
+                home_directory: home_directory)
             RubyGPG2.export_secret_keys(
                 names: [key_fingerprint],
                 output_file_path:
                     "#{t.output_directory}/#{t.name_prefix}.private",
                 armor: t.armor,
-                home_directory: t.home_directory)
+                home_directory: home_directory)
           end
 
           puts "Done."
