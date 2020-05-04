@@ -450,14 +450,14 @@ describe RakeGPG::Tasks::Key::Generate do
   end
 
   def stub_output
-    # RubyGPG2.configure do |c|
-    #   c.stderr = StringIO.new
-    #   c.stdout = StringIO.new
-    # end
-    # [:print, :puts].each do |method|
-    #   allow_any_instance_of(Kernel).to(receive(method))
-    #   allow($stdout).to(receive(method))
-    #   allow($stderr).to(receive(method))
-    # end
+    RubyGPG2.configure do |c|
+      c.stderr = StringIO.new
+      c.stdout = StringIO.new
+    end
+    [:print, :puts].each do |method|
+      allow_any_instance_of(Kernel).to(receive(method))
+      allow($stdout).to(receive(method))
+      allow($stderr).to(receive(method))
+    end
   end
 end
