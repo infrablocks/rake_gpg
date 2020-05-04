@@ -8,10 +8,12 @@ module RakeGPG
         default_name :generate
         default_description "Generate a GPG key"
 
-        parameter :path, required: true
         parameter :name_prefix, default: 'gpg'
+        parameter :armor, default: true
 
         parameter :work_directory, default: 'build/gpg'
+        parameter :home_directory
+        parameter :output_directory, required: true
 
         parameter :key_type, default: 'RSA'
         parameter :key_length, default: 2048
@@ -27,32 +29,40 @@ module RakeGPG
 
         action do |t|
           puts "Generating GPG key for #{owner_name} <#{owner_email}>..."
+
           mkdir_p t.work_directory
+          mkdir_p t.home_directory if t.home_directory
+          mkdir_p t.output_directory if t.output_directory
+
           result = RubyGPG2::ParameterFileContents
               .new(t.parameter_values)
               .in_temp_file(t.work_directory) do |f|
             RubyGPG2.generate_key(
                 parameter_file_path: f.path,
-                home_directory: t.work_directory,
+                home_directory: t.home_directory,
+                work_directory: t.work_directory,
                 without_passphrase: t.passphrase.nil?,
                 with_status: true)
           end
+
           key_fingerprint = result
               .status
               .filter_by_type(:key_created)
               .first_line
               .key_fingerprint
-          mkdir_p t.path
+
           RubyGPG2.export(
               names: [key_fingerprint],
-              output_file_path: "#{t.path}/#{t.name_prefix}.public",
-              armor: true,
-              home_directory: t.work_directory)
+              output_file_path:
+                  "#{t.output_directory}/#{t.name_prefix}.public",
+              armor: t.armor,
+              home_directory: t.home_directory)
           RubyGPG2.export_secret_keys(
               names: [key_fingerprint],
-              output_file_path: "#{t.path}/#{t.name_prefix}.private",
-              armor: true,
-              home_directory: t.work_directory)
+              output_file_path:
+                  "#{t.output_directory}/#{t.name_prefix}.private",
+              armor: t.armor,
+              home_directory: t.home_directory)
         end
       end
     end
