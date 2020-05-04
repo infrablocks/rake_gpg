@@ -18,7 +18,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'adds a generate task in the namespace in which it is created' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
 
@@ -28,7 +27,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'gives the generate task a description' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
 
@@ -38,7 +36,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'fails if no owner name is provided' do
     define_task(
-        output_directory: 'some/key/path',
         owner_email: "joe.bloggs@example.com")
 
     expect {
@@ -46,19 +43,33 @@ describe RakeGPG::Tasks::Key::Generate do
     }.to raise_error(RakeFactory::RequiredParameterUnset)
   end
 
-  it 'fails if no output directory is provided' do
+  it 'has no output directory by default' do
     define_task(
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
 
-    expect {
-      Rake::Task['key:generate'].invoke
-    }.to raise_error(RakeFactory::RequiredParameterUnset)
+    rake_task = Rake::Task['key:generate']
+    test_task = rake_task.creator
+
+    expect(test_task.output_directory).to(be_nil)
+  end
+
+  it 'uses the provided output directory when specified' do
+    output_directory = 'some/key/path'
+
+    define_task(
+        output_directory: output_directory,
+        owner_name: "Joe Bloggs",
+        owner_email: "joe.bloggs@example.com")
+
+    rake_task = Rake::Task['key:generate']
+    test_task = rake_task.creator
+
+    expect(test_task.output_directory).to(eq(output_directory))
   end
 
   it 'uses a name prefix of gpg by default' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
 
@@ -70,7 +81,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses the provided name prefix when specified' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com",
         name_prefix: 'admin')
@@ -83,7 +93,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses armor by default' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
 
@@ -95,7 +104,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses the provided value for armor when specified' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com",
         armor: false)
@@ -108,7 +116,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses a work directory of build/gpg by default' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
 
@@ -120,7 +127,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses the provided work directory when specified' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com",
         work_directory: 'tmp')
@@ -133,7 +139,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'has no home directory by default' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
 
@@ -145,7 +150,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses the provided home directory when specified' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com",
         home_directory: 'tmp')
@@ -158,7 +162,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'has no owner comment by default' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
 
@@ -170,7 +173,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses the provided owner comment when specified' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com",
         owner_comment: "Work")
@@ -183,7 +185,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses a key type of RSA by default' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
 
@@ -195,7 +196,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses the provided key type when specified' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com",
         key_type: 'DSA')
@@ -208,7 +208,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses a key length of 2048 by default' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
 
@@ -220,7 +219,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses the provided key length when specified' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com",
         key_length: 4096)
@@ -233,7 +231,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses a subkey type of RSA by default' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
 
@@ -245,7 +242,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses the provided subkey type when specified' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com",
         subkey_type: 'DSA')
@@ -258,7 +254,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses a subkey length of 2048 by default' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
 
@@ -270,7 +265,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses the provided subkey length when specified' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com",
         subkey_length: 4096)
@@ -283,7 +277,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses an expiry of never by default' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
 
@@ -295,7 +288,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses the provided expiry when specified' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com",
         expiry: '2y')
@@ -308,7 +300,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses no passphrase by default' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
 
@@ -320,7 +311,6 @@ describe RakeGPG::Tasks::Key::Generate do
 
   it 'uses the provided passphrase when specified' do
     define_task(
-        output_directory: 'some/key/path',
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com",
         passphrase: 'some-passphrase')
@@ -331,7 +321,38 @@ describe RakeGPG::Tasks::Key::Generate do
     expect(test_task.passphrase).to(eq('some-passphrase'))
   end
 
-  it 'creates a gpg key at the specified path' do
+  it 'creates a gpg key in the specified home directory' do
+    Dir.mktmpdir do |home_directory|
+      owner_name = 'Amanda Greeves'
+      owner_email = 'amanda.greeves@example.com'
+
+      define_task(
+          owner_name: owner_name,
+          owner_email: owner_email,
+          home_directory: home_directory)
+
+      Rake::Task['key:generate'].invoke
+
+      result = RubyGPG2.list_public_keys(
+          home_directory: home_directory)
+
+      public_keys = result.output.public_keys
+
+      expect(public_keys.count).to(eq(1))
+
+      public_key = public_keys.first
+      expect(public_key.algorithm).to(eq(:rsa_encrypt_or_sign))
+      expect(public_key.length).to(eq(2048))
+
+      user_id = public_key.primary_user_id
+
+      expect(user_id.name).to(eq(owner_name))
+      expect(user_id.email).to(eq(owner_email))
+      expect(user_id.comment).to(be_nil)
+    end
+  end
+
+  it 'exports the gpg key to the provided output directory when specified' do
     Dir.mktmpdir do |target_directory|
       output_directory = "#{target_directory}/some/key/path"
       owner_name = 'Amanda Greeves'
@@ -399,7 +420,6 @@ describe RakeGPG::Tasks::Key::Generate do
     end
   end
 
-  # only output keys when path provided
   # allow random home directory under work directory
 
   def stub_output

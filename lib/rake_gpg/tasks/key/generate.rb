@@ -13,7 +13,7 @@ module RakeGPG
 
         parameter :work_directory, default: 'build/gpg'
         parameter :home_directory
-        parameter :output_directory, required: true
+        parameter :output_directory
 
         parameter :key_type, default: 'RSA'
         parameter :key_length, default: 2048
@@ -51,18 +51,26 @@ module RakeGPG
               .first_line
               .key_fingerprint
 
-          RubyGPG2.export(
-              names: [key_fingerprint],
-              output_file_path:
-                  "#{t.output_directory}/#{t.name_prefix}.public",
-              armor: t.armor,
-              home_directory: t.home_directory)
-          RubyGPG2.export_secret_keys(
-              names: [key_fingerprint],
-              output_file_path:
-                  "#{t.output_directory}/#{t.name_prefix}.private",
-              armor: t.armor,
-              home_directory: t.home_directory)
+          puts "Generated GPG key with fingerprint #{key_fingerprint}."
+
+          if t.output_directory
+            puts 'Export requested. ' +
+                "Exporting GPG key to #{t.output_directory}..."
+            RubyGPG2.export(
+                names: [key_fingerprint],
+                output_file_path:
+                    "#{t.output_directory}/#{t.name_prefix}.public",
+                armor: t.armor,
+                home_directory: t.home_directory)
+            RubyGPG2.export_secret_keys(
+                names: [key_fingerprint],
+                output_file_path:
+                    "#{t.output_directory}/#{t.name_prefix}.private",
+                armor: t.armor,
+                home_directory: t.home_directory)
+          end
+
+          puts "Done."
         end
       end
     end
