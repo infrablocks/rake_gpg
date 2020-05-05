@@ -461,3 +461,4 @@ describe RakeGPG::Tasks::Key::Generate do
     end
   end
 end
+
