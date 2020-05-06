@@ -210,7 +210,8 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
       define_task(
           key_file_path: public_key_file_path,
           input_file_path: input_file_path,
-          output_file_path: encrypted_file_path)
+          output_file_path: encrypted_file_path,
+          work_directory: work_directory)
 
       Rake::Task['encryption:encrypt'].invoke
 
