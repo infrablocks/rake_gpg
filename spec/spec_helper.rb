@@ -5,6 +5,7 @@ require 'bundler/setup'
 
 require 'rake'
 require 'support/shared_contexts/rake'
+require 'support/shared_contexts/gpg'
 
 require 'rake_gpg'
 

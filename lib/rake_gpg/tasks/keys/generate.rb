@@ -3,7 +3,7 @@ require 'ruby_gpg2'
 
 module RakeGPG
   module Tasks
-    module Key
+    module Keys
       class Generate < RakeFactory::Task
         default_name :generate
         default_description "Generate a GPG key"
@@ -31,16 +31,16 @@ module RakeGPG
           if t.home_directory == :temporary
             Dir.mktmpdir(
                 'home', t.work_directory) do |home_directory|
-              generate_key(t, home_directory)
+              do_generate_key(t, home_directory)
             end
           else
-            generate_key(t, t.home_directory)
+            do_generate_key(t, t.home_directory)
           end
         end
 
         private
 
-        def generate_key(t, home_directory)
+        def do_generate_key(t, home_directory)
           puts "Generating GPG key for #{t.owner_name} <#{t.owner_email}>..."
 
           mkdir_p t.work_directory

@@ -1,4 +1,5 @@
-require_relative 'tasks/key'
+require_relative 'tasks/keys'
+require_relative 'tasks/encryption'
 
 module RakeGPG
   module Tasks

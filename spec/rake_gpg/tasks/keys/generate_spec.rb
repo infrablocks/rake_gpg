@@ -1,8 +1,9 @@
 require 'spec_helper'
 require 'ruby_gpg2'
 
-describe RakeGPG::Tasks::Key::Generate do
+describe RakeGPG::Tasks::Keys::Generate do
   include_context :rake
+  include_context :gpg
 
   before(:each) do
     stub_output
@@ -353,8 +354,8 @@ describe RakeGPG::Tasks::Key::Generate do
   end
 
   it 'exports the gpg key to the provided output directory when specified' do
-    Dir.mktmpdir do |target_directory|
-      output_directory = "#{target_directory}/some/key/path"
+    Dir.mktmpdir do |work_directory|
+      output_directory = "#{work_directory}/some/key/path"
       owner_name = 'Amanda Greeves'
       owner_email = 'amanda.greeves@example.com'
 
@@ -375,9 +376,11 @@ describe RakeGPG::Tasks::Key::Generate do
       expect(File.exist?(secret_key_path)).to(be(true))
 
       Dir.mktmpdir do |public_import_home_directory|
-        RubyGPG2.import(
-            key_file_paths: [public_key_path],
-            home_directory: public_import_home_directory)
+        import_key(
+            work_directory,
+            public_import_home_directory,
+            public_key_path)
+
         result = RubyGPG2.list_public_keys(
             home_directory: public_import_home_directory)
 
@@ -397,9 +400,11 @@ describe RakeGPG::Tasks::Key::Generate do
       end
 
       Dir.mktmpdir do |secret_import_home_directory|
-        RubyGPG2.import(
-            key_file_paths: [secret_key_path],
-            home_directory: secret_import_home_directory)
+        import_key(
+            work_directory,
+            secret_import_home_directory,
+            secret_key_path)
+
         result = RubyGPG2.list_secret_keys(
             home_directory: secret_import_home_directory)
 

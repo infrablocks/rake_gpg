@@ -3,7 +3,7 @@ require 'ruby_gpg2'
 
 module RakeGPG
   module Tasks
-    module Key
+    module Keys
       class Import < RakeFactory::Task
         default_name :import
         default_description "Import a GPG key"
@@ -16,17 +16,17 @@ module RakeGPG
           if t.home_directory == :temporary
             Dir.mktmpdir(
                 'home', t.work_directory) do |home_directory|
-              import_key(t, home_directory)
+              do_import_key(t, home_directory)
             end
           else
-            import_key(t, t.home_directory)
+            do_import_key(t, t.home_directory)
           end
 
         end
 
         private
 
-        def import_key(t, home_directory)
+        def do_import_key(t, home_directory)
           puts "Importing GPG key from #{t.key_file_path} " +
               "into #{home_directory}..."
           RubyGPG2.import(

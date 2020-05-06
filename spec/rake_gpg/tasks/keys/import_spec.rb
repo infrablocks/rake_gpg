@@ -1,8 +1,9 @@
 require 'spec_helper'
 require 'ruby_gpg2'
 
-describe RakeGPG::Tasks::Key::Import do
+describe RakeGPG::Tasks::Keys::Import do
   include_context :rake
+  include_context :gpg
 
   before(:each) do
     stub_output
@@ -113,8 +114,12 @@ describe RakeGPG::Tasks::Key::Import do
           expiry: :never
       }
 
-      generate_and_export_key(
-          work_directory, key_name, parameters)
+      Dir.mktmpdir do |generate_home_directory|
+        key_fingerprint = generate_key(
+            work_directory, generate_home_directory, parameters)
+        export_public_key(
+            work_directory, generate_home_directory, key_name, key_fingerprint)
+      end
 
       Dir.mktmpdir do |import_home_directory|
         define_task(
@@ -147,8 +152,12 @@ describe RakeGPG::Tasks::Key::Import do
           expiry: :never
       }
 
-      generate_and_export_key(
-          work_directory, key_name, parameters)
+      Dir.mktmpdir do |generate_home_directory|
+        key_fingerprint = generate_key(
+            work_directory, generate_home_directory, parameters)
+        export_public_key(
+            work_directory, generate_home_directory, key_name, key_fingerprint)
+      end
 
       expect(Dir)
           .to(receive(:mktmpdir)
@@ -175,42 +184,6 @@ describe RakeGPG::Tasks::Key::Import do
     expect(user_id.name).to(eq(parameters[:owner_name]))
     expect(user_id.email).to(eq(parameters[:owner_email]))
     expect(user_id.comment).to(eq(parameters[:owner_comment]))
-  end
-
-  def generate_and_export_key(work_directory, output_path, parameters = {
-          key_type: 'RSA',
-          key_length: 2048,
-          subkey_type: 'RSA',
-          subkey_length: 2048,
-          owner_name: 'Amanda Greeves',
-          owner_email: 'amanda.greeves@example.com',
-          expiry: :never
-      })
-    Dir.mktmpdir do |generate_home_directory|
-      result = RubyGPG2::ParameterFileContents
-          .new(parameters)
-          .in_temp_file(work_directory) do |f|
-        RubyGPG2.generate_key(
-            parameter_file_path: f.path,
-            home_directory: generate_home_directory,
-            work_directory: work_directory,
-            without_passphrase: true,
-            with_status: true)
-      end
-
-      key_fingerprint = result
-          .status
-          .filter_by_type(:key_created)
-          .first_line
-          .key_fingerprint
-
-      RubyGPG2.export(
-          names: [key_fingerprint],
-          output_file_path:
-              "#{work_directory}/#{output_path}",
-          armor: true,
-          home_directory: generate_home_directory)
-    end
   end
 
   def stub_output
