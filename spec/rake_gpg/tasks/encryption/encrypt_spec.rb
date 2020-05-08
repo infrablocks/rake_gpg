@@ -9,6 +9,10 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
     stub_output
   end
 
+  after(:each) do
+    RubyGPG2.reset!
+  end
+
   def define_task(opts = {}, &block)
     opts = {namespace: :encryption}.merge(opts)
 
@@ -176,7 +180,7 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
   end
 
   it 'encrypts a file for the provided key' do
-    Dir.mktmpdir do |work_directory|
+    Dir.mktmpdir(nil, '/tmp') do |work_directory|
       public_key_name = 'gpg.public'
       secret_key_name = 'gpg.private'
 
@@ -232,14 +236,14 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
   end
 
   def stub_output
-    RubyGPG2.configure do |c|
-      c.stderr = StringIO.new
-      c.stdout = StringIO.new
-    end
-    [:print, :puts].each do |method|
-      allow_any_instance_of(Kernel).to(receive(method))
-      allow($stdout).to(receive(method))
-      allow($stderr).to(receive(method))
-    end
+      RubyGPG2.configure do |c|
+        c.stderr = StringIO.new
+        c.stdout = StringIO.new
+      end
+      [:print, :puts].each do |method|
+        allow_any_instance_of(Kernel).to(receive(method))
+        allow($stdout).to(receive(method))
+        allow($stderr).to(receive(method))
+      end
   end
 end

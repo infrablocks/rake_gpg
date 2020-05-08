@@ -9,6 +9,10 @@ describe RakeGPG::Tasks::Encryption::Decrypt do
     stub_output
   end
 
+  after(:each) do
+    RubyGPG2.reset!
+  end
+
   def define_task(opts = {}, &block)
     opts = {namespace: :encryption}.merge(opts)
 

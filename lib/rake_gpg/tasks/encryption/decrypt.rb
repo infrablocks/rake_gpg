@@ -36,8 +36,7 @@ module RakeGPG
           RubyGPG2.import(
               key_file_paths: [t.key_file_path],
               work_directory: t.work_directory,
-              home_directory: home_directory,
-              with_status: true)
+              home_directory: home_directory)
 
           RubyGPG2.decrypt(
               input_file_path: t.input_file_path,
@@ -45,7 +44,7 @@ module RakeGPG
               home_directory: home_directory,
               trust_mode: t.trust_mode,
               passphrase: t.passphrase,
-              pinentry_mode: :loopback,
+              pinentry_mode: t.passphrase ? :loopback : nil,
               without_passphrase: !t.passphrase)
           puts "Done."
         end

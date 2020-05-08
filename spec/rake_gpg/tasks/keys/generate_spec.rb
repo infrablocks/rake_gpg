@@ -9,6 +9,10 @@ describe RakeGPG::Tasks::Keys::Generate do
     stub_output
   end
 
+  after(:each) do
+    RubyGPG2.reset!
+  end
+
   def define_task(opts = {}, &block)
     opts = {namespace: :key}.merge(opts)
 
