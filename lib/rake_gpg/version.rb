@@ -1,3 +1,3 @@
 module RakeGPG
-  VERSION = '0.9.0.pre.1'
+  VERSION = '0.10.0'
 end
