@@ -71,7 +71,7 @@ describe RakeGPG::Tasks::Encryption::Decrypt do
     }.to raise_error(RakeFactory::RequiredParameterUnset)
   end
 
-  it 'uses a work directory of build/gpg by default' do
+  it 'uses a work directory of /tmp by default' do
     define_task(
         key_file_path: 'some/key/path',
         input_file_path: 'some/file/to/decrypt',
@@ -80,7 +80,7 @@ describe RakeGPG::Tasks::Encryption::Decrypt do
     rake_task = Rake::Task['encryption:decrypt']
     test_task = rake_task.creator
 
-    expect(test_task.work_directory).to(eq('build/gpg'))
+    expect(test_task.work_directory).to(eq('/tmp'))
   end
 
   it 'uses the provided work directory when specified' do
@@ -180,14 +180,16 @@ describe RakeGPG::Tasks::Encryption::Decrypt do
   end
 
   it 'decrypts a file for the provided key' do
-    Dir.mktmpdir(nil, '/tmp') do |work_directory|
+    Dir.mktmpdir(nil, '/tmp') do |temp_directory|
+      work_directory = "#{temp_directory}/work"
+
       secret_key_name = 'gpg.private'
 
-      secret_key_file_path = "#{work_directory}/#{secret_key_name}"
+      secret_key_file_path = "#{temp_directory}/#{secret_key_name}"
 
-      input_file_path = "#{work_directory}/some-file.plain"
-      encrypted_file_path = "#{work_directory}/some-file.encrypted"
-      decrypted_file_path = "#{work_directory}/some-file.decrypted"
+      input_file_path = "#{temp_directory}/some-file.plain"
+      encrypted_file_path = "#{temp_directory}/some-file.encrypted"
+      decrypted_file_path = "#{temp_directory}/some-file.decrypted"
 
       File.open(input_file_path, 'w') do |f|
         f.write("Hello world")
@@ -196,9 +198,9 @@ describe RakeGPG::Tasks::Encryption::Decrypt do
       Dir.mktmpdir do |encrypt_home_directory|
         key_fingerprint =
             generate_key(
-                work_directory, encrypt_home_directory)
+                temp_directory, encrypt_home_directory)
         export_secret_key(
-            work_directory,
+            temp_directory,
             encrypt_home_directory,
             secret_key_name,
             key_fingerprint)
@@ -225,15 +227,16 @@ describe RakeGPG::Tasks::Encryption::Decrypt do
   end
 
   it 'uses a passphrase for decryption when supplied' do
-    Dir.mktmpdir(nil, '/tmp') do |work_directory|
+    Dir.mktmpdir(nil, '/tmp') do |temp_directory|
+      work_directory = "#{temp_directory}/work"
       passphrase = 'super-secure-passphrase'
 
       secret_key_name = 'gpg.private'
-      secret_key_file_path = "#{work_directory}/#{secret_key_name}"
+      secret_key_file_path = "#{temp_directory}/#{secret_key_name}"
 
-      input_file_path = "#{work_directory}/some-file.plain"
-      encrypted_file_path = "#{work_directory}/some-file.encrypted"
-      decrypted_file_path = "#{work_directory}/some-file.decrypted"
+      input_file_path = "#{temp_directory}/some-file.plain"
+      encrypted_file_path = "#{temp_directory}/some-file.encrypted"
+      decrypted_file_path = "#{temp_directory}/some-file.decrypted"
 
       File.open(input_file_path, 'w') do |f|
         f.write("Hello world")
@@ -242,11 +245,11 @@ describe RakeGPG::Tasks::Encryption::Decrypt do
       Dir.mktmpdir do |encrypt_home_directory|
         key_fingerprint =
             generate_key(
-                work_directory,
+                temp_directory,
                 encrypt_home_directory,
                 passphrase: passphrase)
         export_secret_key(
-            work_directory,
+            temp_directory,
             encrypt_home_directory,
             secret_key_name,
             key_fingerprint,
@@ -264,6 +267,101 @@ describe RakeGPG::Tasks::Encryption::Decrypt do
       define_task(
           key_file_path: secret_key_file_path,
           passphrase: passphrase,
+          input_file_path: encrypted_file_path,
+          output_file_path: decrypted_file_path,
+          work_directory: work_directory)
+
+      Rake::Task['encryption:decrypt'].invoke
+
+      expect(File.read(decrypted_file_path)).to(eq('Hello world'))
+    end
+  end
+
+  it 'uses the provided home directory when supplied' do
+    Dir.mktmpdir(nil, '/tmp') do |temp_directory|
+      work_directory = "#{temp_directory}/work"
+      home_directory = "#{temp_directory}/home"
+      secret_key_name = 'gpg.private'
+
+      secret_key_file_path = "#{temp_directory}/#{secret_key_name}"
+
+      input_file_path = "#{temp_directory}/some-file.plain"
+      encrypted_file_path = "#{temp_directory}/some-file.encrypted"
+      decrypted_file_path = "#{temp_directory}/some-file.decrypted"
+
+      File.open(input_file_path, 'w') do |f|
+        f.write("Hello world")
+      end
+
+      Dir.mktmpdir do |encrypt_home_directory|
+        key_fingerprint =
+            generate_key(
+                temp_directory, encrypt_home_directory)
+        export_secret_key(
+            temp_directory,
+            encrypt_home_directory,
+            secret_key_name,
+            key_fingerprint)
+
+        RubyGPG2.encrypt(
+            recipient: key_fingerprint,
+            input_file_path: input_file_path,
+            output_file_path: encrypted_file_path,
+            home_directory: encrypt_home_directory,
+            armor: true,
+            trust_mode: :always)
+      end
+
+      define_task(
+          key_file_path: secret_key_file_path,
+          input_file_path: encrypted_file_path,
+          output_file_path: decrypted_file_path,
+          work_directory: work_directory,
+          home_directory: home_directory)
+
+      Rake::Task['encryption:decrypt'].invoke
+
+      expect(File.read(decrypted_file_path)).to(eq('Hello world'))
+    end
+  end
+
+  it 'creates the output directory before attempting to decrypt the file' do
+    Dir.mktmpdir(nil, '/tmp') do |temp_directory|
+      work_directory = "#{temp_directory}/work"
+
+      secret_key_name = 'gpg.private'
+
+      secret_key_file_path = "#{temp_directory}/#{secret_key_name}"
+
+      input_file_path = "#{temp_directory}/some-file.plain"
+      encrypted_file_path = "#{temp_directory}/some-file.encrypted"
+      decrypted_file_path = "#{temp_directory}/some/nested/file.decrypted"
+
+      File.open(input_file_path, 'w') do |f|
+        f.write("Hello world")
+      end
+
+      Dir.mktmpdir do |encrypt_home_directory|
+        key_fingerprint =
+            generate_key(
+                temp_directory, encrypt_home_directory)
+        export_secret_key(
+            temp_directory,
+            encrypt_home_directory,
+            secret_key_name,
+            key_fingerprint)
+
+        RubyGPG2.encrypt(
+            recipient: key_fingerprint,
+            input_file_path: input_file_path,
+            output_file_path: encrypted_file_path,
+            home_directory: encrypt_home_directory,
+            armor: true,
+            trust_mode: :always)
+      end
+
+      define_task(
+          key_file_path: secret_key_file_path,
           input_file_path: encrypted_file_path,
           output_file_path: decrypted_file_path,
           work_directory: work_directory)

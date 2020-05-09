@@ -57,14 +57,14 @@ describe RakeGPG::Tasks::Keys::Import do
     expect(test_task.key_file_path).to(eq(key_file_path))
   end
 
-  it 'uses a work directory of build/gpg by default' do
+  it 'uses a work directory of /tmp by default' do
     define_task(
         key_file_path: 'some/key/path')
 
     rake_task = Rake::Task['key:import']
     test_task = rake_task.creator
 
-    expect(test_task.work_directory).to(eq('build/gpg'))
+    expect(test_task.work_directory).to(eq('/tmp'))
   end
 
   it 'uses the provided work directory when specified' do
@@ -104,7 +104,8 @@ describe RakeGPG::Tasks::Keys::Import do
   end
 
   it 'imports the provided GPG key into the keychain' do
-    Dir.mktmpdir do |work_directory|
+    Dir.mktmpdir(nil, '/tmp') do |temp_directory|
+      work_directory = "#{temp_directory}/work"
       key_name = 'gpg.public'
       parameters = {
           owner_name: 'Amanda Greeves',
@@ -120,14 +121,15 @@ describe RakeGPG::Tasks::Keys::Import do
 
       Dir.mktmpdir do |generate_home_directory|
         key_fingerprint = generate_key(
-            work_directory, generate_home_directory, parameters)
+            temp_directory, generate_home_directory, parameters)
         export_public_key(
-            work_directory, generate_home_directory, key_name, key_fingerprint)
+            temp_directory, generate_home_directory, key_name, key_fingerprint)
       end
 
       Dir.mktmpdir do |import_home_directory|
         define_task(
-            key_file_path: "#{work_directory}/#{key_name}",
+            key_file_path: "#{temp_directory}/#{key_name}",
+            work_directory: work_directory,
             home_directory: import_home_directory)
 
         Rake::Task['key:import'].invoke
@@ -142,7 +144,8 @@ describe RakeGPG::Tasks::Keys::Import do
 
   it "uses a temporary home directory by default (weird behaviour but " +
       "want to protect user's keychain)" do
-    Dir.mktmpdir(nil, '/tmp') do |work_directory|
+    Dir.mktmpdir(nil, '/tmp') do |temp_directory|
+      work_directory = "#{temp_directory}/work"
       key_name = 'gpg.public'
       parameters = {
           owner_name: 'Amanda Greeves',
@@ -158,9 +161,9 @@ describe RakeGPG::Tasks::Keys::Import do
 
       Dir.mktmpdir do |generate_home_directory|
         key_fingerprint = generate_key(
-            work_directory, generate_home_directory, parameters)
+            temp_directory, generate_home_directory, parameters)
         export_public_key(
-            work_directory, generate_home_directory, key_name, key_fingerprint)
+            temp_directory, generate_home_directory, key_name, key_fingerprint)
       end
 
       expect(Dir)
@@ -169,7 +172,7 @@ describe RakeGPG::Tasks::Keys::Import do
               .and_call_original)
 
       define_task(
-          key_file_path: "#{work_directory}/#{key_name}",
+          key_file_path: "#{temp_directory}/#{key_name}",
           work_directory: work_directory)
 
       Rake::Task['key:import'].invoke

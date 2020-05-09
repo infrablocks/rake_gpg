@@ -119,7 +119,7 @@ describe RakeGPG::Tasks::Keys::Generate do
     expect(test_task.armor).to(be(false))
   end
 
-  it 'uses a work directory of build/gpg by default' do
+  it 'uses a work directory of /tmp by default' do
     define_task(
         owner_name: "Joe Bloggs",
         owner_email: "joe.bloggs@example.com")
@@ -127,7 +127,7 @@ describe RakeGPG::Tasks::Keys::Generate do
     rake_task = Rake::Task['key:generate']
     test_task = rake_task.creator
 
-    expect(test_task.work_directory).to(eq('build/gpg'))
+    expect(test_task.work_directory).to(eq('/tmp'))
   end
 
   it 'uses the provided work directory when specified' do
@@ -327,13 +327,17 @@ describe RakeGPG::Tasks::Keys::Generate do
   end
 
   it 'creates a gpg key in the specified home directory' do
-    Dir.mktmpdir do |home_directory|
+    Dir.mktmpdir(nil, '/tmp') do |temp_directory|
+      work_directory = "#{temp_directory}/work"
+      home_directory = "#{temp_directory}/home"
+
       owner_name = 'Amanda Greeves'
       owner_email = 'amanda.greeves@example.com'
 
       define_task(
           owner_name: owner_name,
           owner_email: owner_email,
+          work_directory: work_directory,
           home_directory: home_directory)
 
       Rake::Task['key:generate'].invoke
@@ -358,13 +362,16 @@ describe RakeGPG::Tasks::Keys::Generate do
   end
 
   it 'exports the gpg key to the provided output directory when specified' do
-    Dir.mktmpdir do |work_directory|
-      output_directory = "#{work_directory}/some/key/path"
+    Dir.mktmpdir(nil, '/tmp') do |temp_directory|
+      work_directory = "#{temp_directory}/work"
+      output_directory = "#{temp_directory}/some/key/path"
+
       owner_name = 'Amanda Greeves'
       owner_email = 'amanda.greeves@example.com'
 
-      Dir.mktmpdir do |generate_home_directory|
+      Dir.mktmpdir(nil, '/tmp') do |generate_home_directory|
         define_task(
+            work_directory: work_directory,
             output_directory: output_directory,
             owner_name: owner_name,
             owner_email: owner_email,
@@ -379,9 +386,9 @@ describe RakeGPG::Tasks::Keys::Generate do
       expect(File.exist?(public_key_path)).to(be(true))
       expect(File.exist?(secret_key_path)).to(be(true))
 
-      Dir.mktmpdir do |public_import_home_directory|
+      Dir.mktmpdir(nil, '/tmp') do |public_import_home_directory|
         import_key(
-            work_directory,
+            temp_directory,
             public_import_home_directory,
             public_key_path)
 
@@ -403,9 +410,9 @@ describe RakeGPG::Tasks::Keys::Generate do
         expect(user_id.comment).to(be_nil)
       end
 
-      Dir.mktmpdir do |secret_import_home_directory|
+      Dir.mktmpdir(nil, '/tmp') do |secret_import_home_directory|
         import_key(
-            work_directory,
+            temp_directory,
             secret_import_home_directory,
             secret_key_path)
 
@@ -431,8 +438,9 @@ describe RakeGPG::Tasks::Keys::Generate do
 
   it 'creates a temporary directory under the work directory for home ' +
       'directory when home directory is :temporary' do
-    Dir.mktmpdir(nil, '/tmp') do |work_directory|
-      output_directory = "#{work_directory}/keys"
+    Dir.mktmpdir(nil, '/tmp') do |temp_directory|
+      work_directory = "#{temp_directory}/work"
+      output_directory = "#{temp_directory}/keys"
       owner_name = 'Amanda Greeves'
       owner_email = 'amanda.greeves@example.com'
 
