@@ -13,6 +13,7 @@ module RakeGPG
         parameter :home_directory, default: :temporary
 
         action do |t|
+          mkdir_p(t.work_directory)
           if t.home_directory == :temporary
             Dir.mktmpdir(
                 'home', t.work_directory) do |home_directory|
