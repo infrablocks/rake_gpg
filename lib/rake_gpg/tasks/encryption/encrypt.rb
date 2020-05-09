@@ -26,6 +26,7 @@ module RakeGPG
               do_encrypt(t, home_directory)
             end
           else
+            mkdir_p(t.home_directory)
             do_encrypt(t, t.home_directory)
           end
         end

@@ -35,6 +35,7 @@ module RakeGPG
               do_generate_key(t, home_directory)
             end
           else
+            mkdir_p(t.home_directory)
             do_generate_key(t, t.home_directory)
           end
         end
