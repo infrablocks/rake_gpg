@@ -70,6 +70,8 @@ module RakeGPG
                   output_file_path:
                       "#{t.output_directory}/#{t.name_prefix}.private",
                   armor: t.armor,
+                  passphrase: t.passphrase,
+                  pinentry_mode: t.passphrase.nil? ? nil : :loopback,
                   home_directory: home_directory)
             end
           end

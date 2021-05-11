@@ -366,11 +366,14 @@ describe RakeGPG::Tasks::Keys::Generate do
       work_directory = "#{temp_directory}/work"
       output_directory = "#{temp_directory}/some/key/path"
 
+      passphrase = 'secret-passphrase'
+
       owner_name = 'Amanda Greeves'
       owner_email = 'amanda.greeves@example.com'
 
       Dir.mktmpdir(nil, '/tmp') do |generate_home_directory|
         define_task(
+            passphrase: passphrase,
             work_directory: work_directory,
             output_directory: output_directory,
             owner_name: owner_name,
