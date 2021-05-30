@@ -6,8 +6,8 @@ require 'rake_gpg/version'
 Gem::Specification.new do |spec|
   spec.name = 'rake_gpg'
   spec.version = RakeGPG::VERSION
-  spec.authors = ['Toby Clemson']
-  spec.email = ['tobyclemson@gmail.com']
+  spec.authors = ['InfraBlocks Maintainers']
+  spec.email = ['maintainers@infrablocks.io']
 
   spec.summary = 'Rake tasks for managing GPG activities.'
   spec.description = 'Rake tasks for common GPG related activities allowing ' +
