@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rake_factory'
 require 'ruby_gpg2'
 
@@ -8,7 +10,7 @@ module RakeGPG
     module Encryption
       class Decrypt < RakeFactory::Task
         default_name :decrypt
-        default_description "Decrypt a file using GPG"
+        default_description 'Decrypt a file using GPG'
 
         parameter :key_file_path, required: true
         parameter :input_file_path, required: true
@@ -20,29 +22,62 @@ module RakeGPG
         parameter :trust_mode, default: :always
         parameter :passphrase
 
-        action do |t|
-          mkdir_p(t.work_directory)
-
-          puts "Decrypting #{t.input_file_path} with key #{t.key_file_path}..."
-          Home.new(t.work_directory, t.home_directory)
-              .with_resolved_directory do |home_directory|
-            RubyGPG2.import(
-                key_file_paths: [t.key_file_path],
-                work_directory: t.work_directory,
-                home_directory: home_directory)
-
-            mkdir_p(File.dirname(t.output_file_path))
-
-            RubyGPG2.decrypt(
-                input_file_path: t.input_file_path,
-                output_file_path: t.output_file_path,
-                home_directory: home_directory,
-                trust_mode: t.trust_mode,
-                passphrase: t.passphrase,
-                pinentry_mode: t.passphrase ? :loopback : nil,
-                without_passphrase: !t.passphrase)
+        action do
+          make_work_directory
+          log_decrypting
+          in_home_directory do |home_directory|
+            import_key(home_directory)
+            make_output_directory
+            decrypt(home_directory)
           end
-          puts "Done."
+          log_done
+        end
+
+        private
+
+        def in_home_directory(&block)
+          Home.new(work_directory, home_directory)
+              .with_resolved_directory do |home_directory|
+            block.call(home_directory)
+          end
+        end
+
+        def import_key(home_directory)
+          RubyGPG2.import(
+            key_file_paths: [key_file_path],
+            work_directory: work_directory,
+            home_directory: home_directory
+          )
+        end
+
+        def make_work_directory
+          mkdir_p(work_directory)
+        end
+
+        def make_output_directory
+          mkdir_p(File.dirname(output_file_path))
+        end
+
+        def decrypt(home_directory)
+          RubyGPG2.decrypt(
+            input_file_path: input_file_path,
+            output_file_path: output_file_path,
+            home_directory: home_directory,
+            trust_mode: trust_mode,
+            passphrase: passphrase,
+            pinentry_mode: passphrase ? :loopback : nil,
+            without_passphrase: !passphrase
+          )
+        end
+
+        def log_decrypting
+          $stdout.puts(
+            "Decrypting #{input_file_path} with key #{key_file_path}..."
+          )
+        end
+
+        def log_done
+          $stdout.puts('Done.')
         end
       end
     end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rake_gpg/tasks'
 require 'rake_gpg/version'
 
