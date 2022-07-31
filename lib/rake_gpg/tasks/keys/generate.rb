@@ -125,7 +125,7 @@ module RakeGPG
 
         def log_exporting_key
           $stdout.puts(
-            'Export requested. Exporting GPG key to '\
+            'Export requested. Exporting GPG key to ' \
             "#{output_directory}..."
           )
         end

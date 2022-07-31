@@ -113,7 +113,6 @@ describe RakeGPG::Tasks::Keys::Import do
   end
 
   it 'imports the provided GPG key into the keychain' do
-    # rubocop:disable Metrics/BlockLength
     Dir.mktmpdir(nil, '/tmp') do |temp_directory|
       work_directory = "#{temp_directory}/work"
       key_name = 'gpg.public'
@@ -154,12 +153,10 @@ describe RakeGPG::Tasks::Keys::Import do
         assert_only_key(result.output.public_keys, parameters)
       end
     end
-    # rubocop:enable Metrics/BlockLength
   end
 
   it 'uses a temporary home directory by default (weird behaviour but ' \
      "want to protect user's keychain)" do
-    # rubocop:disable Metrics/BlockLength
     Dir.mktmpdir(nil, '/tmp') do |temp_directory|
       work_directory = "#{temp_directory}/work"
       key_name = 'gpg.public'
@@ -197,7 +194,6 @@ describe RakeGPG::Tasks::Keys::Import do
         .to(have_received(:mktmpdir)
               .with('home', work_directory))
     end
-    # rubocop:enable Metrics/BlockLength
   end
 
   def assert_only_key(public_keys, parameters)
