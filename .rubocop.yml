@@ -14,6 +14,8 @@ Metrics/BlockLength:
     - context
     - shared_examples
     - it
+    - Dir.mktmpdir
+    - shared_context
 
 Style/Documentation:
   Enabled: false
