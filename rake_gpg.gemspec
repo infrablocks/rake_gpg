@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = 'Rake tasks for managing GPG activities.'
   spec.description = 'Rake tasks for common GPG related activities allowing ' \
-                     'keys to be managed and content to be encrypted and '\
+                     'keys to be managed and content to be encrypted and ' \
                      'decrypted.'
   spec.homepage = 'https://github.com/infrablocks/rake_gpg'
   spec.license = 'MIT'

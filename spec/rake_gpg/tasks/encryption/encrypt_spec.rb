@@ -195,7 +195,6 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
   end
 
   it 'encrypts a file for the provided key' do
-    # rubocop:disable Metrics/BlockLength
     Dir.mktmpdir(nil, '/tmp') do |temp_directory|
       work_directory = "#{temp_directory}/work"
       public_key_name = 'gpg.public'
@@ -244,11 +243,9 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
         expect(File.read(decrypted_file_path)).to(eq('Hello world'))
       end
     end
-    # rubocop:enable Metrics/BlockLength
   end
 
-  it 'uses the provided home directory when supplied' do
-    # rubocop:disable Metrics/BlockLength
+  it 'uses the provided home directory when supplied' do # rubocop:disable RSpec/ExampleLength
     Dir.mktmpdir(nil, '/tmp') do |temp_directory|
       work_directory = "#{temp_directory}/work"
       home_directory = "#{temp_directory}/home"
@@ -266,7 +263,8 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
       File.write(input_file_path, 'Hello world')
 
       Dir.mktmpdir do |generate_home_directory|
-        key_fingerprint = generate_key(temp_directory, generate_home_directory)
+        key_fingerprint = generate_key(temp_directory,
+                                       generate_home_directory)
         export_public_key(
           temp_directory, generate_home_directory,
           public_key_name, key_fingerprint
@@ -298,11 +296,9 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
         expect(File.read(decrypted_file_path)).to(eq('Hello world'))
       end
     end
-    # rubocop:enable Metrics/BlockLength
   end
 
   it 'creates the output directory before attempting to encrypt the file' do
-    # rubocop:disable Metrics/BlockLength
     Dir.mktmpdir(nil, '/tmp') do |temp_directory|
       work_directory = "#{temp_directory}/work"
 
@@ -352,7 +348,6 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
         expect(File.read(decrypted_file_path)).to(eq('Hello world'))
       end
     end
-    # rubocop:enable Metrics/BlockLength
   end
 
   def stub_output

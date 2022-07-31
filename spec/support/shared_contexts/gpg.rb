@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 # rubocop:disable RSpec/ContextWording
-# rubocop:disable Metrics/BlockLength
 shared_context 'gpg' do
   def generate_key(work_directory, home_directory, parameters = {})
     lookup_key_fingerprint(
@@ -118,5 +117,4 @@ shared_context 'gpg' do
           .key_fingerprint
   end
 end
-# rubocop:enable Metrics/BlockLength
 # rubocop:enable RSpec/ContextWording

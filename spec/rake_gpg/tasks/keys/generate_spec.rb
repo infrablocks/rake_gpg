@@ -396,7 +396,6 @@ describe RakeGPG::Tasks::Keys::Generate do
 
   # rubocop:disable RSpec/MultipleExpectations
   # rubocop:disable RSpec/ExampleLength
-  # rubocop:disable Metrics/BlockLength
   it 'exports the gpg key to the provided output directory when specified' do
     Dir.mktmpdir(nil, '/tmp') do |temp_directory|
       work_directory = "#{temp_directory}/work"
@@ -479,7 +478,6 @@ describe RakeGPG::Tasks::Keys::Generate do
       end
     end
   end
-  # rubocop:enable Metrics/BlockLength
   # rubocop:enable RSpec/ExampleLength
   # rubocop:enable RSpec/MultipleExpectations
 
