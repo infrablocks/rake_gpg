@@ -15,11 +15,11 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
     RubyGPG2.reset!
   end
 
-  def define_task(opts = {}, &block)
+  def define_task(opts = {}, &)
     opts = { namespace: :encryption }.merge(opts)
 
     namespace opts[:namespace] do
-      described_class.define(opts, &block)
+      described_class.define(opts, &)
     end
   end
 
@@ -98,7 +98,7 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
       key_file_path: 'some/key/path',
       input_file_path: 'some/file/to/encrypt',
       output_file_path: 'some/output/file',
-      work_directory: work_directory
+      work_directory:
     )
 
     rake_task = Rake::Task['encryption:encrypt']
@@ -127,7 +127,7 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
       key_file_path: 'some/key/path',
       input_file_path: 'some/file/to/encrypt',
       output_file_path: 'some/output/file',
-      home_directory: home_directory
+      home_directory:
     )
 
     rake_task = Rake::Task['encryption:encrypt']
@@ -156,7 +156,7 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
       key_file_path: 'some/key/path',
       input_file_path: 'some/file/to/encrypt',
       output_file_path: 'some/output/file',
-      armor: armor
+      armor:
     )
 
     rake_task = Rake::Task['encryption:encrypt']
@@ -185,7 +185,7 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
       key_file_path: 'some/key/path',
       input_file_path: 'some/file/to/encrypt',
       output_file_path: 'some/output/file',
-      trust_mode: trust_mode
+      trust_mode:
     )
 
     rake_task = Rake::Task['encryption:encrypt']
@@ -225,9 +225,9 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
 
       define_task(
         key_file_path: public_key_file_path,
-        input_file_path: input_file_path,
+        input_file_path:,
         output_file_path: encrypted_file_path,
-        work_directory: work_directory
+        work_directory:
       )
 
       Rake::Task['encryption:encrypt'].invoke
@@ -277,10 +277,10 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
 
       define_task(
         key_file_path: public_key_file_path,
-        input_file_path: input_file_path,
+        input_file_path:,
         output_file_path: encrypted_file_path,
-        work_directory: work_directory,
-        home_directory: home_directory
+        work_directory:,
+        home_directory:
       )
 
       Rake::Task['encryption:encrypt'].invoke
@@ -330,9 +330,9 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
 
       define_task(
         key_file_path: public_key_file_path,
-        input_file_path: input_file_path,
+        input_file_path:,
         output_file_path: encrypted_file_path,
-        work_directory: work_directory
+        work_directory:
       )
 
       Rake::Task['encryption:encrypt'].invoke
@@ -352,8 +352,8 @@ describe RakeGPG::Tasks::Encryption::Encrypt do
 
   def stub_output
     RubyGPG2.configure do |c|
-      c.stderr = StringIO.new
-      c.stdout = StringIO.new
+      c.stderr = Tempfile.new
+      c.stdout = Tempfile.new
     end
     %i[print puts].each do |method|
       allow($stdout).to(receive(method))

@@ -73,8 +73,8 @@ module RakeGPG
             .in_temp_file(work_directory) do |f|
             RubyGPG2.generate_key(
               parameter_file_path: f.path,
-              home_directory: home_directory,
-              work_directory: work_directory,
+              home_directory:,
+              work_directory:,
               without_passphrase: passphrase.nil?,
               with_status: true
             )
@@ -95,8 +95,8 @@ module RakeGPG
           RubyGPG2.export(
             names: [key_fingerprint],
             output_file_path: "#{output_directory}/#{name_prefix}.public",
-            armor: armor,
-            home_directory: home_directory
+            armor:,
+            home_directory:
           )
         end
 
@@ -104,10 +104,10 @@ module RakeGPG
           RubyGPG2.export_secret_keys(
             names: [key_fingerprint],
             output_file_path: "#{output_directory}/#{name_prefix}.private",
-            armor: armor,
-            passphrase: passphrase,
+            armor:,
+            passphrase:,
             pinentry_mode: passphrase.nil? ? nil : :loopback,
-            home_directory: home_directory
+            home_directory:
           )
         end
 

@@ -41,7 +41,7 @@ module RakeGPG
         def import(home_directory)
           RubyGPG2.import(
             key_file_paths: [key_file_path],
-            home_directory: home_directory
+            home_directory:
           )
         end
 

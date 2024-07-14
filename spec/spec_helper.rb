@@ -10,6 +10,8 @@ require 'support/shared_contexts/rake'
 require 'support/shared_contexts/gpg'
 require 'support/matchers'
 
+require 'tempfile'
+
 require 'rake_gpg'
 
 RSpec.configure do |config|

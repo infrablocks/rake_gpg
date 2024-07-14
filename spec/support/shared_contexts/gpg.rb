@@ -25,7 +25,7 @@ shared_context 'gpg' do
       output_file_path:
           "#{work_directory}/#{output_path}",
       armor: true,
-      home_directory: home_directory
+      home_directory:
     )
   end
 
@@ -43,15 +43,15 @@ shared_context 'gpg' do
       armor: true,
       pinentry_mode: :loopback,
       passphrase: options[:passphrase],
-      home_directory: home_directory
+      home_directory:
     )
   end
 
   def import_key_from_path(work_directory, home_directory, key_file_path)
     RubyGPG2.import(
       key_file_paths: [key_file_path],
-      work_directory: work_directory,
-      home_directory: home_directory
+      work_directory:,
+      home_directory:
     )
   end
 
@@ -60,9 +60,9 @@ shared_context 'gpg' do
   )
     RubyGPG2.encrypt(
       recipient: key_fingerprint,
-      input_file_path: input_file_path,
-      output_file_path: output_file_path,
-      home_directory: home_directory,
+      input_file_path:,
+      output_file_path:,
+      home_directory:,
       armor: true,
       trust_mode: :always
     )
@@ -70,9 +70,9 @@ shared_context 'gpg' do
 
   def decrypt(home_directory, input_file_path, output_file_path)
     RubyGPG2.decrypt(
-      input_file_path: input_file_path,
-      output_file_path: output_file_path,
-      home_directory: home_directory
+      input_file_path:,
+      output_file_path:,
+      home_directory:
     )
   end
 
@@ -102,9 +102,9 @@ shared_context 'gpg' do
     work_directory, home_directory, parameter_file_path
   )
     RubyGPG2.generate_key(
-      parameter_file_path: parameter_file_path,
-      home_directory: home_directory,
-      work_directory: work_directory,
+      parameter_file_path:,
+      home_directory:,
+      work_directory:,
       without_passphrase: true,
       with_status: true
     )

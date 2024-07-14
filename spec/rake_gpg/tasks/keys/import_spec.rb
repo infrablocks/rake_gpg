@@ -15,11 +15,11 @@ describe RakeGPG::Tasks::Keys::Import do
     RubyGPG2.reset!
   end
 
-  def define_task(opts = {}, &block)
+  def define_task(opts = {}, &)
     opts = { namespace: :key }.merge(opts)
 
     namespace opts[:namespace] do
-      described_class.define(opts, &block)
+      described_class.define(opts, &)
     end
   end
 
@@ -53,7 +53,7 @@ describe RakeGPG::Tasks::Keys::Import do
     key_file_path = 'some/key/path'
 
     define_task(
-      key_file_path: key_file_path
+      key_file_path:
     )
 
     rake_task = Rake::Task['key:import']
@@ -78,7 +78,7 @@ describe RakeGPG::Tasks::Keys::Import do
 
     define_task(
       key_file_path: 'some/key/path',
-      work_directory: work_directory
+      work_directory:
     )
 
     rake_task = Rake::Task['key:import']
@@ -103,7 +103,7 @@ describe RakeGPG::Tasks::Keys::Import do
 
     define_task(
       key_file_path: 'some/key/path',
-      home_directory: home_directory
+      home_directory:
     )
 
     rake_task = Rake::Task['key:import']
@@ -140,7 +140,7 @@ describe RakeGPG::Tasks::Keys::Import do
       Dir.mktmpdir do |import_home_directory|
         define_task(
           key_file_path: "#{temp_directory}/#{key_name}",
-          work_directory: work_directory,
+          work_directory:,
           home_directory: import_home_directory
         )
 
@@ -185,7 +185,7 @@ describe RakeGPG::Tasks::Keys::Import do
 
       define_task(
         key_file_path: "#{temp_directory}/#{key_name}",
-        work_directory: work_directory
+        work_directory:
       )
 
       Rake::Task['key:import'].invoke
@@ -219,8 +219,8 @@ describe RakeGPG::Tasks::Keys::Import do
 
   def stub_output
     RubyGPG2.configure do |c|
-      c.stderr = StringIO.new
-      c.stdout = StringIO.new
+      c.stderr = Tempfile.new
+      c.stdout = Tempfile.new
     end
     %i[print puts].each do |method|
       allow($stdout).to(receive(method))

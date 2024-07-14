@@ -15,11 +15,11 @@ describe RakeGPG::Tasks::Keys::Generate do
     RubyGPG2.reset!
   end
 
-  def define_task(opts = {}, &block)
+  def define_task(opts = {}, &)
     opts = { namespace: :key }.merge(opts)
 
     namespace opts[:namespace] do
-      described_class.define(opts, &block)
+      described_class.define(opts, &)
     end
   end
 
@@ -69,7 +69,7 @@ describe RakeGPG::Tasks::Keys::Generate do
     output_directory = 'some/key/path'
 
     define_task(
-      output_directory: output_directory,
+      output_directory:,
       owner_name: 'Joe Bloggs',
       owner_email: 'joe.bloggs@example.com'
     )
@@ -365,16 +365,16 @@ describe RakeGPG::Tasks::Keys::Generate do
       owner_email = 'amanda.greeves@example.com'
 
       define_task(
-        owner_name: owner_name,
-        owner_email: owner_email,
-        work_directory: work_directory,
-        home_directory: home_directory
+        owner_name:,
+        owner_email:,
+        work_directory:,
+        home_directory:
       )
 
       Rake::Task['key:generate'].invoke
 
       result = RubyGPG2.list_public_keys(
-        home_directory: home_directory
+        home_directory:
       )
 
       public_keys = result.output.public_keys
@@ -408,11 +408,11 @@ describe RakeGPG::Tasks::Keys::Generate do
 
       Dir.mktmpdir(nil, '/tmp') do |generate_home_directory|
         define_task(
-          passphrase: passphrase,
-          work_directory: work_directory,
-          output_directory: output_directory,
-          owner_name: owner_name,
-          owner_email: owner_email,
+          passphrase:,
+          work_directory:,
+          output_directory:,
+          owner_name:,
+          owner_email:,
           home_directory: generate_home_directory
         )
 
@@ -491,11 +491,11 @@ describe RakeGPG::Tasks::Keys::Generate do
       owner_email = 'amanda.greeves@example.com'
 
       define_task(
-        owner_name: owner_name,
-        owner_email: owner_email,
-        work_directory: work_directory,
+        owner_name:,
+        owner_email:,
+        work_directory:,
         home_directory: :temporary,
-        output_directory: output_directory
+        output_directory:
       )
 
       allow(Dir).to(receive(:mktmpdir).and_call_original)
@@ -517,8 +517,8 @@ describe RakeGPG::Tasks::Keys::Generate do
 
   def stub_output
     RubyGPG2.configure do |c|
-      c.stderr = StringIO.new
-      c.stdout = StringIO.new
+      c.stderr = Tempfile.new
+      c.stdout = Tempfile.new
     end
     %i[print puts].each do |method|
       allow($stdout).to(receive(method))
