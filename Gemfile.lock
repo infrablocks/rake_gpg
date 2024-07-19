@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rake_gpg (0.20.0)
+    rake_gpg (0.21.0.pre.1)
       rake_factory (~> 0.33)
       ruby_gpg2 (~> 0.12)
 
